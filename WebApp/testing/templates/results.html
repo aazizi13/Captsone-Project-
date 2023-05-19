@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BART Density Estimator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+  </head>
+  <body>
+    <main>
+        <div class="container col-xl-10 col-xxl-8 px-4 py-5">
+            <div class="row align-items-top g-lg-5 py-5">
+              <div class="col-lg-7 text-center text-lg-start">
+                <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">BART Density Estimator</h1>
+                <p class="col-lg-10 fs-4">You deserve the most comfortable ride possible when you ride BART. Make sure you have a seat on your next journey! Use the form to predict the number of empty seats on your next journey! </p>
+              </div>
+              <div class="col-md-10 mx-auto col-lg-5">
+                <form id="request" action="/predict2" method="POST" class="p-4 p-md-5 border rounded-3 bg-body-tertiary">
+                    <label for="origin" class="form-label"><i class="bi bi-train-front-fill"></i> From</label>
+                    <input type="text" class="form-control" list="stnList"  name="origin" id="formOrigin" value="{{origin}}">
+
+                    <p class="text-center" style="margin-bottom: 0;"><button class="btn btn-link" onclick="switchText()"> Swap stations <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-up" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z"></path>
+                    </svg></button></p>
+
+                    <label for="dest" class="form-label"><i class="bi bi-train-front-fill"></i> To</label>
+                    <input type="text" class="form-control" list="stnList"  name="dest" id="formDest" value="{{dest}}">
+                    <br />
+                    <label for="hour" class="form-label"><i class="bi bi-clock-fill"></i> At (next 24 hours in 24hr format)</label></label>
+                    <input type="text" class="form-control" list="hours"  name="hour" value="{{hour}}">
+
+                    <input type="hidden" name="datestr" id="formDate">
+                    
+                    <br />
+                    <input type="submit" class="w-100 btn btn-md btn-primary" value="Submit" class="form-control" />
+                    
+                    <datalist id = "hours">
+                    </datalist>
+
+                    <datalist id="stnList">
+                      <option value="12TH">12th St. Oakland City Center</option>
+                      <option value="16TH">16th St. Mission</option>
+                      <option value="19TH">19th St. Oakland</option>
+                      <option value="24TH">24th St. Mission</option>
+                      <!-- ANTC antioch? -->
+                      <option value="ASHB">Ashby</option>
+                      <option value="BALB">Balboa Park</option>
+                      <option value="BAYF">Bay Fair</option>
+                      <!-- BERY -->
+                      <option value="CAST">Castro Valley</option>
+                      <option value="CIVC">Civic Center/UN Plaza</option>
+                      <option value="COLS">Coliseum/Oakland Airport</option>
+                      <option value="COLM">Colma</option>
+                      <option value="CONC">Concord</option>
+                      <option value="DALY">Daly City</option>
+                      <option value="DBRK">Downtown Berkeley</option>
+                      <option value="DUBL">Dublin/Pleasanton</option>
+                      <option value="EMBR">Embarcadero</option>
+                      <option value="FRMT">Fremont</option>
+                      <option value="FTVL">Fruitvale</option>
+                      <option value="GLEN">Glen Park</option>
+                      <option value="HAYW">Hayward</option>
+                      <option value="LAFY">Lafayette</option>
+                      <option value="LAKE">Lake Merritt</option>
+                      <option value="MCAR">MacArthur</option>
+                      <option value="MLBR">Millbrae</option>
+                      <option value="MONT">Montgomery St.</option>
+                      <option value="NBRK">North Berkeley</option>
+                      <option value="NCON">North Concord/Martinez</option>
+                      <option value="ORIN">Orinda</option>
+                      <option value="PITT">Pittsburg/Bay Point</option>
+                      <option value="PHIL">Pleasant Hill/Contra Costa Centre</option>
+                      <option value="POWL">Powell St.</option>
+                      <option value="RICH">Richmond</option>
+                      <option value="ROCK">Rockridge</option>
+                      <option value="SBRN">San Bruno</option>
+                      <option value="SFIA">San Francisco Int'l Airport</option>
+                      <option value="SANL">San Leandro</option>
+                      <option value="SHAY">South Hayward</option>
+                      <option value="SSAN">South San Francisco</option>
+                      <option value="UCTY">Union City</option>
+                      <option value="WCRK">Walnut Creek</option>
+                      <option value="WDUB">West Dublin/Pleasanton</option>
+                      <option value="WOAK">West Oakland</option>
+                    </datalist>
+                    <br/>
+                </form>
+                <hr class="my-4">
+                <div id="result" align="center">
+                    <h5 class="display-6">Your train from {{origin}} to {{dest}} at {{hour}} should have <br/><strong>about {{prediction}} empty seats</strong><br />out of 104.</h2>
+                </div>
+              </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.6.4.slim.min.js" integrity="sha256-a2yjHM4jnF9f54xUQakjZGaqYs/V1CYvWpoqZzC2/Bw=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+    <script>
+      var d = new Date();
+      function addHours(date,hour) {
+        date.setTime(date.getTime() + hour * 60 * 60 * 1000);
+        return date.getHours();
+      }
+
+      today = d.toISOString().split('T')[0]
+      $('#formDate').val(today);
+
+      for (i = 0; i < 24; ++i){
+        $('#hours').append("<option value='" + addHours(d,1) + "'>");
+      }
+    </script>
+    
+    <script>
+      function switchText() {
+      var obj1 = document.getElementById('formOrigin').value;
+      var obj2 = document.getElementById('formDest').value;
+
+      var temp = obj1;
+      obj1 = obj2;
+      obj2 = temp;
+      
+      // Save the swapped values to the input element.
+      document.getElementById('formOrigin').value = obj1;
+      document.getElementById('formDest').value = obj2;
+    }
+    </script>
+
+    <!--
+    <script>
+        //get the form from DOM (Document object model) 
+        var form = document.getElementById('request');
+        form.onsubmit = function(event){
+            var xhr = new XMLHttpRequest();
+            var data = new FormData(form);
+            //Add extra data to form before submission.
+            for (const value of data.values()) {
+                console.log(value);
+            }
+            //data.append("referer","https://example.com");
+            //open the request
+            //xhr.open('POST','http://localhost:7000/tests/v1.0/form')
+            //send the form data
+            //xhr.send(data);
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                    form.reset(); //reset form after AJAX success.
+                }
+            }
+
+            //Dont submit the form.
+            return false; 
+        }
+    </script>
+    -->
+    
+  </body>
+</html>
